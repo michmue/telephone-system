@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Telefonliste IP800</title>
+    <link href="src/view/style.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="src/view/tablesort.js"></script>
+    <script type="text/javascript" src="src/view/index.js"></script>
+    {{ java }}
+</head>
+
+<body>
+<div align="center"><a href="../default.htm">Zurück zur Startseite</a><br/><br/></div>
+<table width="950" border="0" cellpadding="0" cellspacing="0" align="center" class="tab">
+    <tr>
+        <td width="5">&nbsp;</td>
+        <td width="940">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="72%" class="topic">Telefonliste
+                        vom {{ logfile.date | format_datetime(pattern='dd MMM YYYY') }}</td>
+                    <td width="28%" align="right"><a style="text-decoration: none; font-size: 38px; color: hsl(185,100%,27%)" href="{{ index_link }}">innovaphone</a></td>
+                </tr>
+            </table>
+        </td>
+        <td width="5">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="72%" class="name">Anzahl der Anrufe: <span id="callCount">{{ calls | length }}</span></td>
+                    <td width="14%" align="right">
+                        <form method="get" action="/index.php">
+                            <input type="hidden" name="logfile" value="{{ logfile.fileName }}">
+                            <select name="owner" onChange="filterTableByOwner(this.value)">
+                                {% for owner in owners %}
+                                    <option value="{{ owner }}">{{ owner }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </td>
+                    <td width="14%" align="right">
+                        <form method="get" action="/index.php" autocomplete="off">
+                            <select name="logYear" onchange="showLogsForSelectedYear(this)">
+                                {% for year,log in logsByYear %}
+                                    {% if requestedYear and year == requestedYear %}
+                                        <option selected value="{{ year }}">{{ year }}</option>
+                                    {% else %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+
+                            <select name="logName" onchange="this.form.submit();">
+
+                                {% for year,logs in logsByYear %}
+
+                                    {% for log in logs| reverse %}
+
+                                        {% if requestedLogfileName and log.fileName == requestedLogfileName %}
+                                            <option selected year="{{ year }}"
+                                                    value="{{ log.fileName }}">{{ log.date | format_datetime(pattern='dd MMM') }}</option>
+
+                                        {% else %}
+                                            <option value="{{ log.fileName }}"
+                                                    year="{{ year }}">{{ log.date | format_datetime(pattern='dd MMM') }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                            <script>showLogsForSelectedYear(document.querySelector("select[name='logYear']"), false);</script>
+                        </form>
+
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td align="center" class="name"><font color="#FF0000">{{ error }}</font></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>
+            <table width="100%" border="1" cellspacing="0" cellpadding="0" class="sortable" id="CallEntryTable"
+                   rules="all">
+                <tr>
+                    <th width="48" align="center">Status</th>
+                    <th width="243" align="left">Anrufer</th>
+                    <th width="140" align="center">eingehende MSN</th>
+                    <th width="88" align="center">Intern</th>
+                    <th width="243" align="left">gew&auml;hlte Nummer</th>
+                    <th width="80" align="center">Uhrzeit</th>
+                    <th width="80" align="center">Dauer</th>
+                </tr>
+                {% for call in calls | reverse %}
+                    <tr owners='{{ call.includedOwners | json_encode }}'>
+                        <td height="35" align="center" valign="top" class="text">
+                            {% if call.callAccepted %}
+                                A
+                            {% endif %}
+                        </td>
+                        <td height="35" align="left" valign="top" class="text">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                {% if call.callType == 'IN_COMING' %}
+                                    {% if call.sourceContact.name == "" %}
+                                        <tr>
+                                            <td width="80%" align="left">{{ call.sourceContact.phoneNumber }}</td>
+                                            {% if call.sourceContact.phoneNumber != "" %}
+                                                <td width="20%" align="right">
+
+                                                        <span id="addContactSpan"
+                                                              onclick="showAddContactDialog('{{ call.sourceContact.phoneNumber }}')"
+                                                              title="Telefonbucheintrag hinzufügen">
+                                                            <img src="res/img/add.gif" alt="edit" width="12" height="12" border="0"/>
+                                                        </span>
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                        <tr>
+                                            <td width="80%" align="left">&nbsp;</td>
+                                            <td width="20%" align="right">&nbsp;</td>
+                                        </tr>
+                                    {% else %}
+                                        <tr>
+                                            <td width="80%" align="left">{{ call.sourceContact.name }}   </td>
+                                            <td width="20%" align="right">
+
+                                                    <span style="text-decoration: none;"
+                                                          title="Telefonbucheintrag ändern"
+                                                          onclick="showEditContactDialog('{{ call.sourceContact.phoneNumber }}', '{{ call.sourceContact.name }}')">
+                                                          <img src="res/img/edit.gif" alt="edit" width="12" height="12" border="0"/>
+                                                    </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="80%" align="left">{{ call.sourceContact.phoneNumber }}</td>
+                                            <td width="20%" align="right">
+                                                    <span id="deleteContactSpan"
+                                                          onclick="showDeleteContactDialog('{{ call.sourceContact.phoneNumber }}', '{{ call.sourceContact.name }}')"
+                                                          title="Telefonbucheintrag löschen">
+                                                            <img src="res/img/delete.gif" alt="edit" width="12" height="12" border="0"/>
+                                                    </span>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endif %}
+                            </table>
+                        </td>
+                        <td height="35" align="center" valign="top"
+                            class="text">{{ call.destinationMSN.officeBranchName }}</td>
+                        <td height="35" align="center" valign="top" class="text">
+                            {% if call.callType == 'INTERN' or call.callType == 'OUT_GOING'  %}
+                                {{ call.sourceContact.phoneNumber }}
+                            {% endif %}
+                            {% if call.callType == 'IN_COMING'%}
+                                {{ call.destinationContact.phoneNumber }}
+                            {% endif %}
+                        </td>
+                        <td height="35" align="left" valign="top" class="text">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                {% if call.destinationContact.name == "" %}
+                                    <tr>
+                                        <td width="80%" align="left">{{ call.destinationContact.phoneNumber }}</td>
+                                        {% if call.destinationContact.phoneNumber != "" %}
+                                            <td width="20%" align="right">
+
+                                                        <span id="addContactSpan"
+                                                              onclick="showAddContactDialog('{{ call.destinationContact.phoneNumber }}')"
+                                                              title="Telefonbucheintrag hinzufügen">
+                                                            <img src="res/img/add.gif" alt="edit" width="12" height="12" border="0"/>
+                                                        </span>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td width="80%" align="left">&nbsp;</td>
+                                        <td width="20%" align="right">&nbsp;</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td width="80%" align="left">{{ call.destinationContact.name }}   </td>
+                                        <td width="20%" align="right">
+
+                                                    <span style="text-decoration: none;"
+                                                          title="Telefonbucheintrag ändern"
+                                                          onclick="showEditContactDialog('{{ call.sourceContact.phoneNumber }}', '{{ call.sourceContact.name }}')">
+                                                        <img src="res/img/edit.gif" alt="edit" width="12" height="12" border="0"/>
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="80%" align="left">{{ call.destinationContact.phoneNumber }}</td>
+                                        <td width="20%" align="right">
+                                            <span id="deleteContactSpan"
+                                                  onclick="showDeleteContactDialog('{{ call.destinationContact.phoneNumber }}', '{{ call.sourceContact.name }}')"
+                                                  title="Telefonbucheintrag löschen">
+                                                <img src="res/img/delete.gif" alt="x" width="12" height="12" border="0"/>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </table>
+                        </td>
+                        <td height="35" align="center" valign="top"
+                            class="text">{{ call.callTimeBegin | format_datetime('none', 'medium') }}</td>
+                        <td height="35" align="center" valign="top"
+                            class="text">{{ call.callTimeDuration | format_datetime('none', 'medium') }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td class="text">&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td class="name" align="center">{{ refresh_link }}</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td class="text">{{ inhalt_file }}</td>
+        <td>&nbsp;</td>
+    </tr>
+</table>
+<br/>
+<div align="center" class="footer">
+            <span class="zeit">Diese Seite wurde in {{ time }} Sekunden erstellt<br/>
+            {{ archiv }}<br/>
+            {{ double }}<br/>
+            Eigent&uuml;mer:</span> {{ owner }}<br/>
+    Script by Daniel Nätscher &copy; {{ jahr }}
+</div>
+<div align="center"><br/><a href="../default.htm">Zur&uuml;ck zur Startseite</a></div>
+{{ include('components/contact.html') }}
+</body>
+</html>

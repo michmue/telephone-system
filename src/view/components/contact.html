@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="de">
+    <head>
+        <link href="src/view/components/contact.css" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        <dialog id="editContactDialog">
+            <form class="flexForm" method="dialog">
+
+                <label>
+                    Telefonnummer:
+                    <input id="phoneNumberInput" type="text" name="phoneNumber" required disabled value="test">
+                </label>
+
+                <label>
+                    Name:
+                    <input id="contactNameInput" type="tel" name="name" required>
+                </label>
+
+                <div class="flexButtons">
+                    <button id="resetBtn" type="reset">Abbrechen</button>
+                    <input id="submitBtn" type="submit" value="Speichern">
+                </div>
+
+            </form>
+        </dialog>
+        <script src="src/view/components/contact.js" type="application/javascript"></script>
+    </body>
+</html>

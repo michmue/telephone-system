@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  ip800:
+    image: ip800-intl
+    container_name: ip800
+    build:
+      dockerfile_inline: |
+        FROM php:5.6-alpine
+        RUN apk add php5-intl && \
+          cp /usr/lib/php5/modules/intl.so /usr/local/lib/php/extensions/no-debug-non-zts-20131226/intl.so && \
+          mv /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini  && \
+          echo "extension=intl.so" >> /usr/local/etc/php/php.ini
+        WORKDIR /app
+
+    volumes:
+      - .:/app
+    entrypoint: php -S 0.0.0.0:80
+    ports:
+      - "8888:80"
+
+#    stdin_open: true # docker run -i
+#    tty: true        # docker run -t

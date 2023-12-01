@@ -1,0 +1,28 @@
+#editContactDialog {
+    border: 2px solid white;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+.flexForm {
+    display: flex;
+    flex-flow: column;
+    align-items: end;
+}
+
+.flexForm > label {
+    margin-bottom: 10px;
+}
+
+.flexForm:last-child {
+    margin-bottom: 0px;
+}
+
+.flexButtons {
+    width: 100%;
+    display: flex;
+}
+
+.flexButtons > * {
+    flex: auto;
+}

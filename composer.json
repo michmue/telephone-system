@@ -1,0 +1,13 @@
+{
+  "require": {
+    "twig/twig": "1.42.5",
+    "ext-json": "*",
+    "ext-intl": "*",
+    "ext-mbstring": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "IP800\\": "src"
+    }
+  }
+}
