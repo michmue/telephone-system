@@ -1,0 +1,5 @@
+PBX0 16 TrunkLine(00214355072055) <-conn Quelle Shop 31(31:Quelle Shop 31)  --- so muss es sein ---    so wird geloggt bis Version 9
+
+PBX0 22 TrunkLine(0015782437337) <-conn Lager 55(87:Lager 55)              --- so ist es momentan --- so wird geloggt ab Version 10
+
+
